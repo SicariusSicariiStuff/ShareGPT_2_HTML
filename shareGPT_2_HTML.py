@@ -35,14 +35,15 @@ def process_json_file(json_file_path: str, output_dir: str) -> None:
             .human-entry { background-color: #e6f3ff; }
             h1 { border-bottom: 1px solid #ddd; padding-bottom: 10px; }
             h2 { margin-top: 0; }
+            .entry-number { background-color: #90EE90; padding: 5px 10px; border-radius: 5px; }
         </style>
     </head>
     <body>
     """
 
-    for entry in data:
+    for entry_number, entry in enumerate(data, 1):
         character_name = entry.get('Character', 'GPT_Assistant')
-        html_content += f"<h1>Character: {character_name}</h1>\n"
+        html_content += f'<h1><span class="entry-number">Entry {entry_number}</span> Character: {character_name}</h1>\n'
         conversations = entry.get('conversations', [])
         for conversation in conversations:
             if conversation.get('from') in ['gpt', 'human'] and conversation.get('value'):
@@ -78,13 +79,16 @@ def process_json_file(json_file_path: str, output_dir: str) -> None:
     print(f"HTML file created: {html_file_path}")
 
 def process_input(input_path: str) -> None:
+    # Get the directory where the script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
     if os.path.isfile(input_path):
         # Process single file
-        output_dir = os.path.dirname(input_path)
+        output_dir = script_dir
         process_json_file(input_path, output_dir)
     elif os.path.isdir(input_path):
         # Process directory
-        output_dir = f"{input_path}_HTML_EXPORT"
+        output_dir = os.path.join(script_dir, f"{os.path.basename(input_path)}_HTML_EXPORT")
         os.makedirs(output_dir, exist_ok=True)
         for root, _, files in os.walk(input_path):
             for file in files:
