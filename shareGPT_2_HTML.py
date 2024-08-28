@@ -25,8 +25,15 @@ def json_to_html(json_file_path):
     <html>
     <head>
         <style>
+            body { font-family: Arial, sans-serif; line-height: 1.4; padding: 20px; }
             .bold-green { font-weight: bold; color: darkgreen; }
-            .character-image { width: 3%; float: left; margin-right: 5px; min-width: 20px; }
+            .character-image { width: 5%; float: left; margin-right: 10px; min-width: 20px; }
+            .conversation-entry { margin-bottom: 20px; overflow: hidden; }
+            .gpt-entry, .human-entry { padding: 10px; border-radius: 5px; font-size: 20px; } /* Added font-size */
+            .gpt-entry { background-color: #f0f0f0; }
+            .human-entry { background-color: #e6f3ff; }
+            h1 { border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+            h2 { margin-top: 0; }
         </style>
     </head>
     <body>
@@ -43,14 +50,19 @@ def json_to_html(json_file_path):
 
                 if conversation['from'] == 'gpt':
                     html_content += f"""
-                    <h2>{character_name}:</h2>
-                    <div>
+                    <div class="conversation-entry gpt-entry">
+                        <h2>{character_name}:</h2>
                         <img src="data:image/png;base64,{img_base64}" alt="Character Image" class="character-image" />
                         <p>{conversation_value}</p>
                     </div>
                     """
                 else:
-                    html_content += f"<h2>You:</h2>\n<p>{conversation_value}</p>\n"
+                    html_content += f"""
+                    <div class="conversation-entry human-entry">
+                        <h2>You:</h2>
+                        <p>{conversation_value}</p>
+                    </div>
+                    """
 
     # Close the HTML tags
     html_content += "</body></html>"
