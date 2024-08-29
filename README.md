@@ -27,3 +27,5 @@ This script is intentionally kept simple and bare-bones, allowing users to fork 
 ````
 
 * Check the example folder for... examples.
+
+python shareGPT_2_HTML.py Example/
