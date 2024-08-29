@@ -14,7 +14,7 @@ def find_png_file(json_file_path: str) -> str:
             return os.path.join(directory, png_file)
 
     except Exception as e:
-        print(f"PNG search in JSON directory failed: {e}")
+        print(f"PNG embedded...")
 
     try:
         current_directory = os.getcwd()
@@ -24,7 +24,7 @@ def find_png_file(json_file_path: str) -> str:
             return os.path.join(current_directory, png_file)
 
     except Exception as e:
-        print(f"PNG search in current directory failed: {e}")
+        print(f"PNG embedded...")
 
     return None
 
