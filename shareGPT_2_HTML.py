@@ -5,23 +5,41 @@ import base64
 import re
 from typing import Union
 
+def find_png_file(json_file_path: str) -> str:
+    try:
+        directory = os.path.dirname(json_file_path)
+        png_file = next((file for file in os.listdir(directory) if file.endswith('.png')), None)
+
+        if png_file:
+            return os.path.join(directory, png_file)
+
+    except Exception as e:
+        print(f"PNG search in JSON directory failed: {e}")
+
+    try:
+        current_directory = os.getcwd()
+        png_file = next((file for file in os.listdir(current_directory) if file.endswith('.png')), None)
+
+        if png_file:
+            return os.path.join(current_directory, png_file)
+
+    except Exception as e:
+        print(f"PNG search in current directory failed: {e}")
+
+    return None
+
 def process_json_file(json_file_path: str, output_dir: str) -> None:
-    # Read the JSON file
     with open(json_file_path, 'r') as json_file:
         data = json.load(json_file)
 
-    # Find a PNG file in the directory
-    png_file = next((file for file in os.listdir(os.path.dirname(json_file_path)) if file.endswith('.png')), None)
+    png_file_path = find_png_file(json_file_path)
 
-    # Convert the PNG file to a base64 string if it exists, otherwise use a placeholder
-    if png_file:
-        with open(os.path.join(os.path.dirname(json_file_path), png_file), "rb") as image_file:
+    if png_file_path:
+        with open(png_file_path, "rb") as image_file:
             img_base64 = base64.b64encode(image_file.read()).decode('utf-8')
     else:
-        # Base64 encoded 1x1 pixel transparent PNG
         img_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
 
-    # Prepare the HTML content
     html_content = """
     <html>
     <head>
@@ -36,6 +54,9 @@ def process_json_file(json_file_path: str, output_dir: str) -> None:
             h1 { border-bottom: 1px solid #ddd; padding-bottom: 10px; }
             h2 { margin-top: 0; }
             .entry-number { background-color: #90EE90; padding: 5px 10px; border-radius: 5px; }
+            pre { background-color: #d3d3d3; padding: 10px; border: 1px solid #aaa; border-radius: 5px; white-space: pre-wrap; }
+            p { margin-bottom: 15px; }
+            strong { font-weight: bold; }
         </style>
     </head>
     <body>
@@ -47,8 +68,19 @@ def process_json_file(json_file_path: str, output_dir: str) -> None:
         conversations = entry.get('conversations', [])
         for conversation in conversations:
             if conversation.get('from') in ['gpt', 'human'] and conversation.get('value'):
+                conversation_value = conversation['value']
+
+                # Replace **text** with bold text
+                conversation_value = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', conversation_value)
+
                 # Replace *text* with bold dark green text
-                conversation_value = re.sub(r'\*(.*?)\*', r'<span class="bold-green">\1</span>', conversation['value'])
+                conversation_value = re.sub(r'\*(.*?)\*', r'<span class="bold-green">\1</span>', conversation_value)
+
+                # Replace \n with visible paragraph separation
+                conversation_value = conversation_value.replace('\n', '</p><p>')
+
+                # Replace ```code``` with <pre>code</pre>
+                conversation_value = re.sub(r'```(.*?)```', r'<pre>\1</pre>', conversation_value, flags=re.DOTALL)
 
                 if conversation['from'] == 'gpt':
                     html_content += f"""
@@ -66,29 +98,23 @@ def process_json_file(json_file_path: str, output_dir: str) -> None:
                     </div>
                     """
 
-    # Close the HTML tags
     html_content += "</body></html>"
 
-    # Get the base name of the JSON file without the extension
     base_name = os.path.splitext(os.path.basename(json_file_path))[0]
-    # Create the HTML file path
     html_file_path = os.path.join(output_dir, f"{base_name}.html")
-    # Write the HTML content to the file
     with open(html_file_path, 'w') as html_file:
         html_file.write(html_content)
     print(f"HTML file created: {html_file_path}")
 
 def process_input(input_path: str) -> None:
-    # Get the directory where the script is located
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
     if os.path.isfile(input_path):
-        # Process single file
         output_dir = script_dir
         process_json_file(input_path, output_dir)
     elif os.path.isdir(input_path):
-        # Process directory
-        output_dir = os.path.join(script_dir, f"{os.path.basename(input_path)}_HTML_EXPORT")
+        dir_name = os.path.basename(os.path.normpath(input_path))
+        output_dir = os.path.join(script_dir, f"{dir_name}_HTML_EXPORT")
         os.makedirs(output_dir, exist_ok=True)
         for root, _, files in os.walk(input_path):
             for file in files:
