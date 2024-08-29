@@ -24,8 +24,8 @@ shareGPT_2_HTML.py <json file or a directory with JSON files>
 ## Purpose
 
 This script is intentionally kept simple and bare-bones, allowing users to fork and modify it as needed. The hope is to inspire the development of more easy yet useful tools for processing datasets in the future.
+
+## Example usage:
 ````
-
-* Check the example folder for... examples.
-
 python shareGPT_2_HTML.py Example/
+````
