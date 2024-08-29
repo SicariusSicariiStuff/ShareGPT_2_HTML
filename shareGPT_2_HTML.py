@@ -83,6 +83,9 @@ def process_json_file(json_file_path: str, output_dir: str) -> None:
             # Replace ```code``` with <pre>code</pre>
             conversation_value = re.sub(r'```(.*?)```', r'<pre>\1</pre>', conversation_value, flags=re.DOTALL)
 
+            # Replace [link](http://link_address) with <a href="http://link_address">link</a>
+            conversation_value = re.sub(r'\[([^\]]+)\]\((http[^\)]+)\)', r'<a href="\2">\1</a>', conversation_value)
+
             if source == 'gpt':
                 html_content += f"""
                 <div class="conversation-entry gpt-entry">
