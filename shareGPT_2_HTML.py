@@ -48,9 +48,10 @@ def process_json_file(json_file_path: str, output_dir: str) -> None:
             .bold-green { font-weight: bold; color: darkgreen; }
             .character-image { width: 3%; float: left; margin-right: 10px; min-width: 20px; }
             .conversation-entry { margin-bottom: 20px; overflow: hidden; }
-            .gpt-entry, .human-entry { padding: 10px; border-radius: 5px; }
+            .gpt-entry, .human-entry, .system-entry { padding: 10px; border-radius: 5px; }
             .gpt-entry { background-color: #f0f0f0; }
             .human-entry { background-color: #e6f3ff; }
+            .system-entry { background-color: #d4f799; color: black; }  <!-- system background -->
             h1 { border-bottom: 1px solid #ddd; padding-bottom: 10px; }
             h2 { margin-top: 0; }
             .entry-number { background-color: #90EE90; padding: 5px 10px; border-radius: 5px; }
@@ -67,36 +68,43 @@ def process_json_file(json_file_path: str, output_dir: str) -> None:
         html_content += f'<h1><span class="entry-number">Entry {entry_number}</span> Character: {character_name}</h1>\n'
         conversations = entry.get('conversations', [])
         for conversation in conversations:
-            if conversation.get('from') in ['gpt', 'human'] and conversation.get('value'):
-                conversation_value = conversation['value']
+            source = conversation.get('from')
+            conversation_value = conversation.get('value', '')
 
-                # Replace **text** with bold text
-                conversation_value = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', conversation_value)
+            # Replace **text** with bold text
+            conversation_value = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', conversation_value)
 
-                # Replace *text* with bold dark green text
-                conversation_value = re.sub(r'\*(.*?)\*', r'<span class="bold-green">\1</span>', conversation_value)
+            # Replace *text* with bold dark green text
+            conversation_value = re.sub(r'\*(.*?)\*', r'<span class="bold-green">\1</span>', conversation_value)
 
-                # Replace \n with visible paragraph separation
-                conversation_value = conversation_value.replace('\n', '</p><p>')
+            # Replace \n with visible paragraph separation
+            conversation_value = conversation_value.replace('\n', '</p><p>')
 
-                # Replace ```code``` with <pre>code</pre>
-                conversation_value = re.sub(r'```(.*?)```', r'<pre>\1</pre>', conversation_value, flags=re.DOTALL)
+            # Replace ```code``` with <pre>code</pre>
+            conversation_value = re.sub(r'```(.*?)```', r'<pre>\1</pre>', conversation_value, flags=re.DOTALL)
 
-                if conversation['from'] == 'gpt':
-                    html_content += f"""
-                    <div class="conversation-entry gpt-entry">
-                        <h2>{character_name}:</h2>
-                        <img src="data:image/png;base64,{img_base64}" alt="Character Image" class="character-image" />
-                        <p>{conversation_value}</p>
-                    </div>
-                    """
-                else:
-                    html_content += f"""
-                    <div class="conversation-entry human-entry">
-                        <h2>You:</h2>
-                        <p>{conversation_value}</p>
-                    </div>
-                    """
+            if source == 'gpt':
+                html_content += f"""
+                <div class="conversation-entry gpt-entry">
+                    <h2>{character_name}:</h2>
+                    <img src="data:image/png;base64,{img_base64}" alt="Character Image" class="character-image" />
+                    <p>{conversation_value}</p>
+                </div>
+                """
+            elif source == 'human':
+                html_content += f"""
+                <div class="conversation-entry human-entry">
+                    <h2>You:</h2>
+                    <p>{conversation_value}</p>
+                </div>
+                """
+            elif source == 'system':
+                html_content += f"""
+                <div class="conversation-entry system-entry">
+                    <h2>System:</h2>
+                    <p>{conversation_value}</p>
+                </div>
+                """
 
     html_content += "</body></html>"
 
