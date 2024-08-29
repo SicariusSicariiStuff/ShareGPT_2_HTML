@@ -15,11 +15,13 @@ shareGPT_2_HTML.py <json file or a directory with JSON files>
 
 ## Features
 
-- **Clear Visual Separation:** The script provides a strong visual distinction between GPT and human turns.
-- **Custom Character Names:** If the JSON contains a character name, it will replace the default 'GPT_Assistant' naming scheme.
-- **Markdown Highlighting:** Markdown text formatted with `**bold**` will be highlighted in the HTML output.
-- **Code Box Highlighting:** Code blocks within the JSON are highlighted for better readability.
-- **Entry-Based Highlighting:** Each entry is highlighted based on the JSON ID tag.
+- Displays character names within each conversation.
+- Includes conversation ID numbers for easy navigation in large datasets.
+- Supports embedding character images directly into the HTML.
+- Formats bold text using a markdown-like style (**two asterisks**).
+- Translates markdown-like links into clickable HTML links.
+- Highlights code blocks using a markdown-like syntax (```like so```).
+- Provides clear visual separation between conversations and individual conversation turns.
 
 ## Purpose
 
