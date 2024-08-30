@@ -31,3 +31,10 @@ This script is intentionally kept simple and bare-bones, allowing users to fork 
 ````
 python shareGPT_2_HTML.py Example/
 ````
+
+## Misc:
+-n arg to NOT embed an image
+
+````
+python shareGPT_2_HTML.py Example/ -n
+````
